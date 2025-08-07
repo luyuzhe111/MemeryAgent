@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 
 import requests
 from agents import function_tool
+from agents.tool import HostedMCPTool
 from dotenv import load_dotenv
 
 # Configure logging for tool calls only
@@ -19,6 +20,25 @@ if not tool_logger.handlers:
     )
     tool_logger.addHandler(handler)
     tool_logger.propagate = False  # Don't pass to root logger
+
+load_dotenv()
+
+
+"""
+check output by
+- result.new_items[1].raw_item.name == 'tavily_search'
+- output = json.loads(result.new_items[1].raw_item.output)
+
+
+"""
+tavily_search_tool = HostedMCPTool(
+    {
+        "type": "mcp",
+        "server_label": "tavily",
+        "server_url": f"https://mcp.tavily.com/mcp/?tavilyApiKey={os.getenv('TAVILY_API_KEY')}",
+        "require_approval": "never",
+    }
+)
 
 
 def _create_composite_image_impl(

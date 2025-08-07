@@ -19,7 +19,10 @@ async def main():  # type: ignore[no-untyped-def]
     agent = Agent(
         name="Image generator",
         instructions="You are a helpful agent.",
-        tools=[download_x_profile_picture, create_composite_image],
+        tools=[
+            download_x_profile_picture,
+            create_composite_image,
+        ],
     )
 
     with trace("Image generation example"):
