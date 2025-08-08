@@ -13,7 +13,7 @@ def open_file(path: str) -> None:
     webbrowser.open(f"file://{path}")
 
 
-async def main():  # type: ignore[no-untyped-def]
+async def main():
     load_dotenv()
 
     agent = Agent(
