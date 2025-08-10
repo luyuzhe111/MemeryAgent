@@ -1,6 +1,6 @@
 import os
 
-from tools import _download_x_profile_picture_impl
+from tools.x_profile import _download_x_profile_picture_impl
 
 
 def test_download_x_profile_picture() -> None:

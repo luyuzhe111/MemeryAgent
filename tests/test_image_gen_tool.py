@@ -1,4 +1,4 @@
-from tools import _create_composite_image_impl
+from tools.image_generation import _create_composite_image_impl
 
 
 def test_create_composite_image() -> None:
