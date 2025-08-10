@@ -12,6 +12,10 @@ logger = logging.getLogger(__name__)
 class TestBot(TwitterClient):
     """Test bot for immediate testing without polling delays."""
 
+    def __init__(self):
+        super().__init__()
+        self.test_image_dir = os.path.join(os.path.dirname(__file__), "test_images")
+
     def test_reply_to_recent_mentions(self, limit: int = 1):
         """Test by replying to recent mentions with the astronaut image."""
         try:
@@ -35,8 +39,8 @@ class TestBot(TwitterClient):
                     f"[{i}/{len(mentions_list)}] Processing mention {mention_id}: {tweet_text}"
                 )
 
-                # Use the astronaut image (adjust path for tests folder)
-                image_path = "moon_astronauts.png"
+                # Use the astronaut image from test_image_dir
+                image_path = os.path.join(self.test_image_dir, "moon_astronauts.png")
 
                 if os.path.exists(image_path):
                     self.reply_with_image(mention_id, "user", image_path)
@@ -52,7 +56,7 @@ class TestBot(TwitterClient):
     def test_image_upload(self):
         """Test uploading the astronaut image without posting a tweet."""
         try:
-            image_path = "moon_astronauts.png"
+            image_path = os.path.join(self.test_image_dir, "moon_astronauts.png")
 
             if not os.path.exists(image_path):
                 logger.error(f"Astronaut image not found at {image_path}")
