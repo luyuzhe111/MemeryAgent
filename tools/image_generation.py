@@ -56,7 +56,8 @@ def _create_composite_image_impl(
         response = requests.post(
             "https://api.openai.com/v1/images/edits",
             headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
-            data={"model": "gpt-image-1", "prompt": prompt},
+            # TODO: lower the moderation level for the image edit API when available.
+            data={"model": "gpt-image-1", "prompt": prompt, "quality": "high"},
             files=files,
         )
 
