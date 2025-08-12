@@ -1,7 +1,7 @@
 import logging
 import os
 
-from twitter_client import TwitterClient
+from backend.twitter_client import TwitterClient
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
