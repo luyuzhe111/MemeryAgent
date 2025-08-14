@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import os
 
@@ -11,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class DatabaseConnection:
-    _instance: "DatabaseConnection" | None = None
+    _instance: DatabaseConnection | None = None
     _client: MongoClient | None = None
     _db: Database | None = None
 
@@ -27,11 +29,11 @@ class DatabaseConnection:
     def connect(self):
         """Establish connection to MongoDB"""
         try:
-            mongodb_url = os.getenv("MONGODB_URL")
-            if not mongodb_url:
-                raise ValueError("MONGODB_URL not found in environment variables")
+            mongodb_uri = os.getenv("MONGODB_URI")
+            if not mongodb_uri:
+                raise ValueError("MONGODB_URI not found in environment variables")
 
-            self._client = MongoClient(mongodb_url)
+            self._client = MongoClient(mongodb_uri)
             # Test the connection
             self._client.admin.command("ping")
 

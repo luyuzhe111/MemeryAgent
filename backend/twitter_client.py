@@ -64,7 +64,7 @@ class TwitterClient:
         return client
 
     def get_mentions(
-        self, since_id: str | None = None, limit: int = 10
+        self, since_id: str | None = None, limit: int = 100
     ) -> list:  # type: ignore[type-arg]
         """Get recent mentions using Twitter API v2."""
         try:
