@@ -97,11 +97,8 @@ class TwitterClient:
             # Upload the image using v1.1 API (only way to upload media)
             media = self.api.media_upload(image_path)
 
-            # Create reply text
-            if custom_text:
-                reply_text = custom_text
-            else:
-                reply_text = "Here's your space adventure! 🚀👨‍🚀"
+            # Create reply text (empty if no custom text specified)
+            reply_text = custom_text if custom_text else ""
 
             # Post the reply using v2 API
             self.client.create_tweet(

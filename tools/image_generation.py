@@ -5,6 +5,8 @@ import os
 import requests
 from agents import function_tool
 
+from utils import get_output_path
+
 # Configure logging for tool calls only
 tool_logger = logging.getLogger("tool_call")
 tool_logger.setLevel(logging.INFO)
@@ -101,17 +103,19 @@ def _create_composite_image_impl(
 def create_composite_image(
     prompt: str,
     image_paths: list[str],
-    output_file: str = "output.png",
-) -> bool:
+    output_filename: str = "output.png",
+) -> str:
     """
     Create a composite image using OpenAI's image editing API.
 
     Args:
         prompt: Text description of how to edit images listed in the image_paths
         image_paths: List of paths to image files
-        output_file: Output filename for the generated image
+        output_filename: Output filename for the generated image
 
     Returns:
-        True if successful, False otherwise
+        Full path to the generated image if successful, empty string if failed
     """
-    return _create_composite_image_impl(prompt, image_paths, output_file)
+    output_path = get_output_path(output_filename)
+    success = _create_composite_image_impl(prompt, image_paths, output_path)
+    return output_path if success else ""

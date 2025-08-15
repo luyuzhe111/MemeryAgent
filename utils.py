@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -42,3 +43,31 @@ def build_character_instructions(memes_dir: str = "memes") -> str:
 
     character_list = ", ".join(characters)
     return f"Locally available meme characters: {character_list}"
+
+
+def get_output_directory() -> str:
+    """
+    Get the appropriate output directory based on environment.
+
+    Returns:
+        Output directory path for images
+    """
+    if os.getenv("RAILWAY_ENVIRONMENT"):
+        return "/data/output_images"
+    else:
+        return "output_images"
+
+
+def get_output_path(filename: str) -> str:
+    """
+    Get the full output path for an image file.
+
+    Args:
+        filename: Name of the output file
+
+    Returns:
+        Full path to the output file
+    """
+    output_dir = get_output_directory()
+    os.makedirs(output_dir, exist_ok=True)
+    return os.path.join(output_dir, filename)

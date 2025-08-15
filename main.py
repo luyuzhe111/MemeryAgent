@@ -1,14 +1,12 @@
 import asyncio
 import logging
 import os
-import time
 
-from agents import Agent, Runner, trace
+from agents import Runner, trace
 
+from agent import create_image_generation_agent
 from backend.database.models import BotState, ProcessedMention
 from backend.twitter_client import TwitterClient
-from tools import create_composite_image, download_x_profile_picture, select_local_image
-from utils import build_character_instructions
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -38,33 +36,14 @@ class TwitterBot(TwitterClient):
     def _setup_image_agent(self):
         """Initialize the OpenAI agent for image generation."""
         try:
-            local_memes = build_character_instructions()
-
-            instructions = (
-                "You are a helpful image generator agent.\n"
-                + f"- {local_memes}.\n"
-                + "Tool Use Requirements:\n"
-                + "- use the download_x_profile_picture tool only "
-                + "when the prompt contains X (Twitter) username such as @elonmusk.\n"
-                + "- use select_local_image tool when you decide a local meme image is needed."
-            )
-
-            self.image_agent = Agent(
-                name="Image generator",
-                instructions=instructions,
-                tools=[
-                    select_local_image,
-                    download_x_profile_picture,
-                    create_composite_image,
-                ],
-            )
+            self.image_agent = create_image_generation_agent()
             logger.info("Image generation agent initialized successfully")
 
         except Exception as e:
             logger.error(f"Failed to initialize image agent: {e}")
             self.image_agent = None
 
-    def start_polling(self):
+    async def start_polling(self):
         """Start the main polling loop that checks for mentions every 90 seconds."""
         logger.info(
             f"Starting Twitter bot with {self.poll_interval}-second polling interval..."
@@ -72,22 +51,22 @@ class TwitterBot(TwitterClient):
 
         while True:
             try:
-                self.check_and_process_mentions()
+                await self.check_and_process_mentions()
                 logger.info(f"Waiting {self.poll_interval} seconds until next check...")
-                time.sleep(self.poll_interval)
+                await asyncio.sleep(self.poll_interval)
 
             except KeyboardInterrupt:
                 logger.info("Bot stopped by user")
                 break
             except Exception as e:
                 logger.error(f"Error in polling loop: {e}")
-                time.sleep(30)  # Wait 30 seconds before retrying on error
+                await asyncio.sleep(30)  # Wait 30 seconds before retrying on error
 
-    def check_and_process_mentions(self):
+    async def check_and_process_mentions(self):
         """Check for new mentions and process them."""
         try:
-            # Use inherited method from TwitterClient
-            mentions_list = self.get_mentions(since_id=self.last_mention_id, limit=10)
+            # Use inherited method from TwitterClients
+            mentions_list = self.get_mentions(since_id=self.last_mention_id, limit=5)
 
             if not mentions_list:
                 logger.info("No new mentions found")
@@ -102,7 +81,7 @@ class TwitterBot(TwitterClient):
                     logger.info(f"Skipping already processed mention {mention.id}")
                     continue
 
-                self.process_mention(mention)
+                await self.process_mention(mention)
 
             # Update the last processed mention ID to the newest mention
             if mentions_list:
@@ -117,7 +96,7 @@ class TwitterBot(TwitterClient):
         except Exception as e:
             logger.error(f"Error checking mentions: {e}")
 
-    def process_mention(self, mention):
+    async def process_mention(self, mention):
         """Process a single mention by creating async task for image generation."""
         try:
             # Get user info from author_id
@@ -197,20 +176,24 @@ class TwitterBot(TwitterClient):
 
             # Extract username from mention
             user = self.client.get_user(id=mention.author_id)
-            username = user.data.username
+            _username = user.data.username
 
             # Create prompt from mention
-            prompt = f"generate an image of @{username} {mention.text}"
+            prompt = f"generate an image according to this tweet:\n{mention.text}"
             logger.info(f"Generating image with prompt: {prompt}")
 
             # Generate image using agent
             with trace("Twitter mention image generation"):
                 result = await Runner.run(self.image_agent, prompt)
 
-            # Extract image path from result
+            # Extract image path from structured result
             if hasattr(result, "final_output") and result.final_output:
                 logger.info(f"Image generation completed: {result.final_output}")
-                return self._extract_image_path_from_result(result)
+                if hasattr(result.final_output, "image_path"):
+                    return result.final_output.image_path
+                else:
+                    logger.error("No image_path in structured output")
+                    return None
             else:
                 logger.error("No output from image generation agent")
                 return None
@@ -219,27 +202,7 @@ class TwitterBot(TwitterClient):
             logger.error(f"Error generating response image: {e}")
             return None
 
-    def _extract_image_path_from_result(self, result) -> str | None:
-        """Extract the generated image path from agent result."""
-        try:
-            # This will depend on how your agent returns the image path
-            # For now, assuming the final_output contains the path
-            if hasattr(result, "final_output"):
-                output = result.final_output
-                # You may need to parse this based on your agent's output format
-                if (
-                    output
-                    and isinstance(output, str)
-                    and output.endswith((".png", ".jpg", ".jpeg"))
-                ):
-                    return output
-                logger.warning(f"Could not extract image path from result: {output}")
-            return None
-        except Exception as e:
-            logger.error(f"Error extracting image path: {e}")
-            return None
-
 
 if __name__ == "__main__":
     bot = TwitterBot()
-    bot.start_polling()
+    asyncio.run(bot.start_polling())
