@@ -55,7 +55,7 @@ A Twitter bot that automatically generates and replies with AI-created images ba
 - Atomic operations with upsert for bot state updates
 
 **Image Storage Strategy**
-- Railway persistent volumes: `/data/output_images/` (production)
+- Railway persistent volumes: `/app/output_images/` (production)
 - Local storage: `output_images/` (development)
 - Filename format: `{mention_id}_{username}_{timestamp}.png`
 - MongoDB stores file path for easy retrieval and analysis
@@ -78,5 +78,4 @@ python main.py
 
 Designed for Railway deployment with:
 - Persistent volumes for image storage ($0.15/GB)
-- Environment detection via `RAILWAY_ENVIRONMENT_NAME`
 - MongoDB Atlas integration for database persistence

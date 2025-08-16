@@ -52,10 +52,7 @@ def get_output_directory() -> str:
     Returns:
         Output directory path for images
     """
-    if os.getenv("RAILWAY_ENVIRONMENT_NAME"):
-        return "/data/output_images"
-    else:
-        return "output_images"
+    return os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "output_images")
 
 
 def get_output_path(filename: str) -> str:
@@ -69,5 +66,6 @@ def get_output_path(filename: str) -> str:
         Full path to the output file
     """
     output_dir = get_output_directory()
-    os.makedirs(output_dir, exist_ok=True)
+    if not output_dir.startswith("/app"):
+        os.makedirs(output_dir, exist_ok=True)
     return os.path.join(output_dir, filename)

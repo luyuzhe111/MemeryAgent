@@ -26,25 +26,23 @@ def test_get_available_characters():
 
 def test_get_output_directory():
     """Test output directory selection based on environment."""
-    # Test local environment (no RAILWAY_ENVIRONMENT_NAME)
-    if "RAILWAY_ENVIRONMENT_NAME" in os.environ:
-        del os.environ["RAILWAY_ENVIRONMENT_NAME"]
+    # Test local environment (no RAILWAY_VOLUME_MOUNT_PATH)
+    if "RAILWAY_VOLUME_MOUNT_PATH" in os.environ:
+        del os.environ["RAILWAY_VOLUME_MOUNT_PATH"]
 
     assert get_output_directory() == "output_images"
 
     # Test Railway environment
-    os.environ["RAILWAY_ENVIRONMENT"] = "production"
-    assert get_output_directory() == "/data/output_images"
-
-    # Clean up
-    if "RAILWAY_ENVIRONMENT_NAME" in os.environ:
-        del os.environ["RAILWAY_ENVIRONMENT_NAME"]
+    os.environ["RAILWAY_VOLUME_MOUNT_PATH"] = "/app/output_images"
+    assert get_output_directory() == "/app/output_images"
 
 
 def test_get_output_path():
     """Test output path generation."""
-    # Ensure we're in local mode
     if "RAILWAY_ENVIRONMENT_NAME" in os.environ:
+        result = get_output_path("test.png")
+        assert result == "/app/output_images/test.png"
+
         del os.environ["RAILWAY_ENVIRONMENT_NAME"]
 
     # Test basic functionality
