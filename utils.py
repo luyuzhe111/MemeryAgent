@@ -52,7 +52,7 @@ def get_output_directory() -> str:
     Returns:
         Output directory path for images
     """
-    if os.getenv("RAILWAY_ENVIRONMENT"):
+    if os.getenv("RAILWAY_ENVIRONMENT_NAME"):
         return "/data/output_images"
     else:
         return "output_images"

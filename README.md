@@ -78,5 +78,5 @@ python main.py
 
 Designed for Railway deployment with:
 - Persistent volumes for image storage ($0.15/GB)
-- Environment detection via `RAILWAY_ENVIRONMENT`
+- Environment detection via `RAILWAY_ENVIRONMENT_NAME`
 - MongoDB Atlas integration for database persistence

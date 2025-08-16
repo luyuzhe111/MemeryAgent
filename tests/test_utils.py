@@ -26,9 +26,9 @@ def test_get_available_characters():
 
 def test_get_output_directory():
     """Test output directory selection based on environment."""
-    # Test local environment (no RAILWAY_ENVIRONMENT)
-    if "RAILWAY_ENVIRONMENT" in os.environ:
-        del os.environ["RAILWAY_ENVIRONMENT"]
+    # Test local environment (no RAILWAY_ENVIRONMENT_NAME)
+    if "RAILWAY_ENVIRONMENT_NAME" in os.environ:
+        del os.environ["RAILWAY_ENVIRONMENT_NAME"]
 
     assert get_output_directory() == "output_images"
 
@@ -37,15 +37,15 @@ def test_get_output_directory():
     assert get_output_directory() == "/data/output_images"
 
     # Clean up
-    if "RAILWAY_ENVIRONMENT" in os.environ:
-        del os.environ["RAILWAY_ENVIRONMENT"]
+    if "RAILWAY_ENVIRONMENT_NAME" in os.environ:
+        del os.environ["RAILWAY_ENVIRONMENT_NAME"]
 
 
 def test_get_output_path():
     """Test output path generation."""
     # Ensure we're in local mode
-    if "RAILWAY_ENVIRONMENT" in os.environ:
-        del os.environ["RAILWAY_ENVIRONMENT"]
+    if "RAILWAY_ENVIRONMENT_NAME" in os.environ:
+        del os.environ["RAILWAY_ENVIRONMENT_NAME"]
 
     # Test basic functionality
     result = get_output_path("test.png")
