@@ -39,6 +39,7 @@ def create_image_generation_agent():
 
 
 prompts = [
+    "generate an image of @iamkadense wearing a woolen hat like @dogwifcoin",
     "generate an image of @EricTrump wearing a woolen hat like @dogwifcoin",
     "generate an image of bitcoin price's skyrocketing",
     "generate an image of @dapanji_eth with hosico.",

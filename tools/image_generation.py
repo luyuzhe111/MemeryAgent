@@ -2,8 +2,10 @@ import base64
 import logging
 import os
 
+import matplotlib.font_manager as fm
 import requests
 from agents import function_tool
+from PIL import Image, ImageDraw, ImageFont
 
 from utils import get_output_path
 
@@ -19,6 +21,98 @@ if not tool_logger.handlers:
     )
     tool_logger.addHandler(handler)
     tool_logger.propagate = False  # Don't pass to root logger
+
+
+def get_font(size: int) -> ImageFont.FreeTypeFont:
+    """
+    Get font - try bundled Montserrat first, then fallback to bold italic sans-serif.
+
+    Args:
+        size: Font size in pixels
+
+    Returns:
+        PIL ImageFont object
+    """
+    # Try bundled Montserrat Bold Italic font
+    bundled_font_path = os.path.join(
+        os.path.dirname(__file__), "..", "assets", "fonts", "Montserrat-BoldItalic.ttf"
+    )
+    if os.path.exists(bundled_font_path):
+        try:
+            return ImageFont.truetype(bundled_font_path, size)
+        except OSError:
+            pass
+
+    # Fallback to system bold italic sans-serif
+    try:
+        font_path = fm.findfont(
+            fm.FontProperties(family="sans-serif", weight="bold", style="italic")
+        )
+        return ImageFont.truetype(font_path, size)
+    except OSError:
+        return ImageFont.load_default()
+
+
+def add_watermark(image_path: str) -> bool:
+    """
+    Add @memery_labs watermark in white text to the bottom right of an image.
+
+    Args:
+        image_path: Path to the image file to watermark
+
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        with Image.open(image_path) as img:
+            # Convert to RGBA for transparency support
+            if img.mode != "RGBA":
+                img = img.convert("RGBA")
+
+            # Create a transparent overlay for the text
+            overlay = Image.new("RGBA", img.size, (255, 255, 255, 0))
+            draw = ImageDraw.Draw(overlay)
+
+            # Watermark text
+            watermark_text = "@memery_labs"
+
+            # Calculate font size to be 1/24 of image height
+            font_size = img.height // 24
+
+            # Get font using our cross-platform function
+            font = get_font(font_size)
+
+            # Get text dimensions
+            text_bbox = draw.textbbox((0, 0), watermark_text, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
+
+            # Position text in bottom right with padding
+            padding = 20
+            x = img.width - text_width - padding
+            y = img.height - text_height - padding
+
+            # Draw the watermark text in white (no background)
+            draw.text((x, y), watermark_text, font=font, fill=(255, 255, 255, 255))
+
+            # Composite the overlay onto the original image
+            watermarked = Image.alpha_composite(img, overlay)
+
+            # Convert back to RGB for saving (most formats don't support RGBA)
+            if watermarked.mode == "RGBA":
+                rgb_img = Image.new("RGB", watermarked.size, (255, 255, 255))
+                rgb_img.paste(watermarked, mask=watermarked.split()[-1])
+                watermarked = rgb_img
+
+            watermarked.save(image_path)
+            tool_logger.info(
+                f"Watermark '@memery_labs' added successfully to {image_path}"
+            )
+            return True
+
+    except Exception as e:
+        tool_logger.error(f"Failed to add watermark: {str(e)}")
+        return False
 
 
 def _create_composite_image_impl(
@@ -59,7 +153,14 @@ def _create_composite_image_impl(
             "https://api.openai.com/v1/images/edits",
             headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
             # TODO: lower the moderation level for the image edit API when available.
-            data={"model": "gpt-image-1", "prompt": prompt, "quality": "high"},
+            data={
+                "model": "gpt-image-1",
+                "prompt": prompt,
+                "quality": "high",
+                "input_fidelity": "high",
+                "moderation": "low",
+                "size": "1536x1024",
+            },
             files=files,
         )
 
@@ -80,6 +181,13 @@ def _create_composite_image_impl(
                 tool_logger.info(
                     f"Composite image successfully saved to: {output_file}"
                 )
+
+                # Add watermark to the generated image
+                if add_watermark(output_file):
+                    tool_logger.info("Watermark added to composite image")
+                else:
+                    tool_logger.warning("Failed to add watermark to composite image")
+
                 print(f"Image saved to: {output_file}")
                 return True
             else:
