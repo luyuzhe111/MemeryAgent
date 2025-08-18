@@ -10,7 +10,6 @@ def build_prompt_from_tweet(tweet: str, author_username: str, me_username: str) 
     prompt = (
         f"The following is a tweet written by @{author_username}.\n\n"
         f'Tweet content: "{tweet_content}"\n\n'
-        f"When the tweet says 'me', it refers to @{author_username} (the author).\n"
     )
 
     # additional instructions.

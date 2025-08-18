@@ -22,7 +22,7 @@ def create_image_generation_agent():
         + f"- {local_memes}.\n"
         + "Tool Use Requirements:\n"
         + "- use the download_x_profile_picture tool only "
-        + "when the prompt contains X (Twitter) username such as @elonmusk.\n"
+        + "when the prompt contains a X (Twitter) username.\n"
         + "- use select_local_image tool when you decide a local meme image is needed."
     )
 
@@ -39,6 +39,7 @@ def create_image_generation_agent():
 
 
 tweets = [
+    "hosico flying",
     "make my profile picture cry.",
     "generate an image of @iamkadense crying tears like crybaby",
     "generate an image of @iamkadense wearing a woolen hat like @dogwifcoin",

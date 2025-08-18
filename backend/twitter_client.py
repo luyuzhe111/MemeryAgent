@@ -74,11 +74,18 @@ class TwitterClient:
                 id=self.client.get_me().data.id,
                 since_id=since_id,
                 max_results=max(5, min(limit, 100)),  # v2 API requires 5-100
-                tweet_fields=["author_id", "created_at", "text"],
+                tweet_fields=["author_id", "created_at", "text", "in_reply_to_user_id"],
             )
 
             if mentions.data:
-                return list(mentions.data)[:limit]
+                # Filter out replies - only keep main tweets (where in_reply_to_user_id is None)
+                main_tweet_mentions = [
+                    mention
+                    for mention in mentions.data
+                    if not hasattr(mention, "in_reply_to_user_id")
+                    or mention.in_reply_to_user_id is None
+                ]
+                return main_tweet_mentions[:limit]
             else:
                 return []
 
