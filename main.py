@@ -7,6 +7,7 @@ from agents import Runner, trace
 from agent import create_image_generation_agent
 from backend.database.models import BotState, ProcessedMention
 from backend.twitter_client import TwitterClient
+from utils import build_prompt_from_tweet
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -176,10 +177,12 @@ class TwitterBot(TwitterClient):
 
             # Extract username from mention
             user = self.client.get_user(id=mention.author_id)
-            _username = user.data.username
+            username = user.data.username
 
             # Create prompt from mention
-            prompt = f"generate an image according to this tweet:\n{mention.text}"
+            prompt = build_prompt_from_tweet(
+                tweet=mention.text, author_username=username, me_username=self.me
+            )
             logger.info(f"Generating image with prompt: {prompt}")
 
             # Generate image using agent

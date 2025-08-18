@@ -15,6 +15,7 @@ class TwitterClient:
     def __init__(self):
         self.api = self._setup_twitter_api()
         self.client = self._setup_twitter_client_v2()
+        self.me = self.client.get_me().data.username
 
     def _setup_twitter_api(self) -> tweepy.API:
         """Setup Twitter API v1.1 client for media uploads."""

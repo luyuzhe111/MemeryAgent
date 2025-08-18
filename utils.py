@@ -2,6 +2,23 @@ import os
 from pathlib import Path
 
 
+def build_prompt_from_tweet(tweet: str, author_username: str, me_username: str) -> str:
+    # remove the tag to avoid confusing the agent
+    tweet_content = tweet.replace(f"@{me_username}", "").strip()
+
+    # provide context on the author of the tweet
+    prompt = (
+        f"The following is a tweet written by @{author_username}.\n\n"
+        f'Tweet content: "{tweet_content}"\n\n'
+        f"When the tweet says 'me', it refers to @{author_username} (the author).\n"
+    )
+
+    # additional instructions.
+    prompt += "Generate an image based on the tweet."
+
+    return prompt
+
+
 def get_available_characters(memes_dir: str = "memes") -> list[str]:
     """
     Discover available meme characters by scanning the memes directory.

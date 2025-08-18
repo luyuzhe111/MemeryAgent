@@ -131,6 +131,15 @@ def _create_composite_image_impl(
     Returns:
         True if successful, False otherwise
     """
+
+    # Provide context on what images the agent is seeing (based on the file path).
+    prompt = f"The images you are seeing are {', '.join(image_paths)}. " + prompt
+
+    # Other guidelines
+    prompt = (
+        prompt + " Do not include tweet text in the image unless explicitly requested."
+    )
+
     # Log the function call details
     tool_logger.info(f"Creating composite image with prompt: '{prompt}'")
     tool_logger.info(f"Input images: {image_paths}")
@@ -217,7 +226,7 @@ def create_composite_image(
     Create a composite image using OpenAI's image editing API.
 
     Args:
-        prompt: Text description of how to edit images listed in the image_paths
+        prompt: A detailed description of how to edit images listed in the image_paths
         image_paths: List of paths to image files
         output_filename: Output filename for the generated image
 

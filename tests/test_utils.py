@@ -3,10 +3,28 @@ import os
 
 from utils import (
     build_character_instructions,
+    build_prompt_from_tweet,
     get_available_characters,
     get_output_directory,
     get_output_path,
 )
+
+
+def test_build_prompt_from_tweet():
+    text = "generate an image of @iamkadense wearing a woolen hat like @dogwifcoin"
+
+    author_name, me_name = "yuzhe_lu", "MemeryBot"
+
+    tweet = f"@{me_name}" + " " + text
+
+    prompt = build_prompt_from_tweet(tweet, author_name, me_name)
+    print(f"tweet: {tweet}")
+    print(f"prompt: {prompt}")
+    assert (
+        "@" + author_name in prompt
+    ), "author username should be included in the tweet."
+    assert me_name not in prompt, "bot name should be removed from the tweet."
+    assert prompt[0] != " ", "leading white space should be removed."
 
 
 def test_get_available_characters():
