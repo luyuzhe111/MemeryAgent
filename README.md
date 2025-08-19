@@ -62,15 +62,67 @@ A Twitter bot that automatically generates and replies with AI-created images ba
 
 ## Development Setup
 
+### Prerequisites
+- Python 3.12 or higher
+- pip
+
+### Installation
+
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Create conda environment
+conda create -n memery python=3.12
+conda activate memery
 
-# Set environment variables
-cp .env.example .env
-# Edit .env with your Twitter API keys and MongoDB URI
+# Install dependencies using pyproject.toml
+pip install -e .
 
-# Run the bot
+# For development dependencies
+pip install -e ".[dev]"
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root with the following variables:
+
+#### For agent.py (AI image generation):
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+#### For main.py (Twitter bot):
+```bash
+TWITTER_BEARER_TOKEN=your_twitter_bearer_token
+TWITTER_API_KEY=your_twitter_api_key
+TWITTER_API_SECRET=your_twitter_api_secret
+TWITTER_ACCESS_TOKEN=your_twitter_access_token
+TWITTER_ACCESS_SECRET=your_twitter_access_secret
+MONGODB_URI=your_mongodb_connection_string
+```
+
+### Pre-commit Setup (Optional)
+
+Set up pre-commit hooks to automatically format and lint code before commits:
+
+```bash
+# Install pre-commit hooks
+pre-commit install
+
+# Run pre-commit on all files (optional, to test setup)
+pre-commit run --all-files
+```
+
+The pre-commit hooks will automatically run:
+- Black (code formatting)
+- Ruff (linting)
+- MyPy (type checking)
+
+### Running the Application
+
+```bash
+# Run the AI agent (standalone image generation)
+python agent.py
+
+# Run the Twitter bot
 python main.py
 ```
 
