@@ -51,7 +51,7 @@ tweets = [
     "generate an image of @iamkadense and @yuzhe_lu in space suits on the moon.",
 ]
 
-author_name, me_name = "yuzhe_lu", "MemeryBot"
+author_name, me_name = "yuzhe_lu", "memery_labs"
 
 prompts = [build_prompt_from_tweet(t, author_name, me_name) for t in tweets]
 

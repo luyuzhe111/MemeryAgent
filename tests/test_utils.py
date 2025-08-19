@@ -13,7 +13,7 @@ from utils import (
 def test_build_prompt_from_tweet():
     text = "generate an image of @iamkadense wearing a woolen hat like @dogwifcoin"
 
-    author_name, me_name = "yuzhe_lu", "MemeryBot"
+    author_name, me_name = "yuzhe_lu", "memery_labs"
 
     tweet = f"@{me_name}" + " " + text
 
