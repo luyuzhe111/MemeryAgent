@@ -15,7 +15,6 @@ class TwitterClient:
     def __init__(self):
         self.api = self._setup_twitter_api()
         self.client = self._setup_twitter_client_v2()
-        self.me = self.client.get_me().data.username
 
     def _setup_twitter_api(self) -> tweepy.API:
         """Setup Twitter API v1.1 client for media uploads."""
@@ -64,6 +63,11 @@ class TwitterClient:
 
         return client
 
+    def get_me(self):
+        if not hasattr(self, "_me"):
+            self._me = self.client.get_me()
+        return self._me
+
     def get_mentions(
         self, since_id: str | None = None, limit: int = 100
     ) -> list:  # type: ignore[type-arg]
@@ -71,7 +75,7 @@ class TwitterClient:
         try:
             # Use v2 API to get mentions
             mentions = self.client.get_users_mentions(
-                id=self.client.get_me().data.id,
+                id=self.get_me().data.id,
                 since_id=since_id,
                 max_results=max(5, min(limit, 100)),  # v2 API requires 5-100
                 tweet_fields=["author_id", "created_at", "text", "in_reply_to_user_id"],

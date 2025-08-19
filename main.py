@@ -181,7 +181,9 @@ class TwitterBot(TwitterClient):
 
             # Create prompt from mention
             prompt = build_prompt_from_tweet(
-                tweet=mention.text, author_username=username, me_username=self.me
+                tweet=mention.text,
+                author_username=username,
+                me_username=self.get_me().data.username,
             )
             logger.info(f"Generating image with prompt: {prompt}")
 
