@@ -20,8 +20,17 @@ class TwitterClient:
         """Setup Twitter API v1.1 client for media uploads."""
         api_key = os.getenv("TWITTER_API_KEY")
         api_secret = os.getenv("TWITTER_API_SECRET")
-        access_token = os.getenv("TWITTER_ACCESS_TOKEN")
-        access_token_secret = os.getenv("TWITTER_ACCESS_SECRET")
+
+        # Select credentials based on environment
+        environment = os.getenv("ENVIRONMENT", "dev").lower()
+        if environment == "production":
+            access_token = os.getenv("TWITTER_ACCESS_TOKEN")
+            access_token_secret = os.getenv("TWITTER_ACCESS_SECRET")
+            logger.info("Using production Twitter credentials")
+        else:
+            access_token = os.getenv("DEV_TWITTER_ACCESS_TOKEN")
+            access_token_secret = os.getenv("DEV_TWITTER_ACCESS_SECRET")
+            logger.info("Using development Twitter credentials")
 
         auth = tweepy.OAuthHandler(api_key, api_secret)
         auth.set_access_token(access_token, access_token_secret)
@@ -40,9 +49,16 @@ class TwitterClient:
         """Setup Twitter API v2 client with full authentication."""
         api_key = os.getenv("TWITTER_API_KEY")
         api_secret = os.getenv("TWITTER_API_SECRET")
-        access_token = os.getenv("TWITTER_ACCESS_TOKEN")
-        access_token_secret = os.getenv("TWITTER_ACCESS_SECRET")
         bearer_token = os.getenv("TWITTER_BEARER_TOKEN")
+
+        # Select credentials based on environment
+        environment = os.getenv("ENVIRONMENT", "dev").lower()
+        if environment == "production":
+            access_token = os.getenv("TWITTER_ACCESS_TOKEN")
+            access_token_secret = os.getenv("TWITTER_ACCESS_SECRET")
+        else:
+            access_token = os.getenv("DEV_TWITTER_ACCESS_TOKEN")
+            access_token_secret = os.getenv("DEV_TWITTER_ACCESS_SECRET")
 
         client = tweepy.Client(
             bearer_token=bearer_token,
