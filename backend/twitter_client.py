@@ -91,8 +91,9 @@ class TwitterClient:
         """Get recent mentions using Twitter API v2."""
         try:
             # Use v2 API to get mentions
+            me_id = self.get_me().data.id
             mentions = self.client.get_users_mentions(
-                id=self.get_me().data.id,
+                id=me_id,
                 since_id=since_id,
                 max_results=max(5, min(limit, 100)),  # v2 API requires 5-100
                 tweet_fields=["author_id", "created_at", "text", "in_reply_to_user_id"],
@@ -100,11 +101,15 @@ class TwitterClient:
 
             if mentions.data:
                 # Filter out replies - only keep main tweets (where in_reply_to_user_id is None)
+                # An edge case is that when the tweet starts with a tag, the tweet will be considered
+                # a reply even if it's a standalone tweet, e.g. "@memery_labs, create an image of ..."
+                # in this case, mention.in_reply_to_user_id will be the same as me_id
                 main_tweet_mentions = [
                     mention
                     for mention in mentions.data
                     if not hasattr(mention, "in_reply_to_user_id")
                     or mention.in_reply_to_user_id is None
+                    or mention.in_reply_to_user_id == me_id
                 ]
                 return main_tweet_mentions[:limit]
             else:

@@ -21,16 +21,25 @@ class ProcessedMention:
     ) -> bool:
         """Mark a mention as processed"""
         try:
+            # Set status based on image_path
+            if image_path == "processing":
+                status = "processing"
+            elif image_path is None:
+                status = "failed"
+            else:
+                status = "completed"
+
             doc = {
                 "mention_id": mention_id,
                 "username": username,
                 "tweet_text": tweet_text,
                 "image_path": image_path,
                 "processed_at": datetime.now(UTC),
-                "status": "completed",
+                "status": status,
             }
 
             result = self.collection.insert_one(doc)
+            print(f"Marked mention {mention_id} with status '{status}' in database")
             return result.acknowledged
 
         except Exception as e:
