@@ -84,15 +84,11 @@ class TwitterBot(TwitterClient):
 
                 await self.process_mention(mention)
 
-            # Update the last processed mention ID to the newest mention
-            if mentions_list:
-                self.last_mention_id = mentions_list[0].id
-                # Persist to database
-                if self.last_mention_id:
-                    self.bot_state.set_last_mention_id(self.last_mention_id)
-                logger.info(
-                    f"Saved last mention ID to database: {self.last_mention_id}"
-                )
+                # Update last mention ID immediately after processing each mention
+                if mention.id:
+                    self.last_mention_id = mention.id
+                    self.bot_state.set_last_mention_id(mention.id)
+                    logger.info(f"Updated last mention ID to database: {mention.id}")
 
         except Exception as e:
             logger.error(f"Error checking mentions: {e}")
@@ -114,6 +110,7 @@ class TwitterBot(TwitterClient):
                 tweet_text=tweet_text,
                 image_path="processing",  # Placeholder status
             )
+            logger.info(f"Marked mention {mention.id} as processing in database")
 
             # Create async task for image generation
             asyncio.create_task(self._generate_and_reply_async(mention))

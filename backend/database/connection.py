@@ -37,10 +37,17 @@ class DatabaseConnection:
             # Test the connection
             self._client.admin.command("ping")
 
-            # Use a database name (you can change this)
-            self._db = self._client.twitter_bot
+            # Select database name based on environment
+            environment = os.getenv("ENVIRONMENT", "dev").lower()
+            if environment == "production":
+                db_name = "twitter_bot_prod"
+            else:
+                db_name = "twitter_bot_dev"
 
-            print("Successfully connected to MongoDB")
+            self._db = self._client[db_name]
+
+            logger.info(f"Successfully connected to MongoDB database: {db_name}")
+            print(f"Successfully connected to MongoDB database: {db_name}")
 
         except Exception as e:
             print(f"Failed to connect to MongoDB: {e}")
