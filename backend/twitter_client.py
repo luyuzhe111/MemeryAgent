@@ -107,9 +107,13 @@ class TwitterClient:
                 main_tweet_mentions = [
                     mention
                     for mention in mentions.data
-                    if not hasattr(mention, "in_reply_to_user_id")
-                    or mention.in_reply_to_user_id is None
-                    or mention.in_reply_to_user_id == me_id
+                    # defensive measure to filter out self-tagging
+                    if mention.author_id != me_id
+                    and (
+                        not hasattr(mention, "in_reply_to_user_id")
+                        or mention.in_reply_to_user_id is None
+                        or mention.in_reply_to_user_id == me_id
+                    )
                 ]
                 return main_tweet_mentions[:limit]
             else:
