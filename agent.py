@@ -28,6 +28,7 @@ def create_image_generation_agent():
 
     return Agent(
         name="Image generator",
+        model="gpt-4.1",
         instructions=instructions,
         tools=[
             select_local_image,
@@ -39,6 +40,7 @@ def create_image_generation_agent():
 
 
 tweets = [
+    "joe petting bonk",
     "hosico flying",
     "make my profile picture cry.",
     "generate an image of @iamkadense crying tears like crybaby",
