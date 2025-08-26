@@ -1,6 +1,6 @@
 import asyncio
 
-from agents import Agent, Runner, trace
+from agents import Agent, ModelSettings, Runner, trace
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
@@ -29,6 +29,7 @@ def create_image_generation_agent():
     return Agent(
         name="Image generator",
         model="gpt-4.1",
+        model_settings=ModelSettings(temperature=0.6),
         instructions=instructions,
         tools=[
             select_local_image,
@@ -40,12 +41,14 @@ def create_image_generation_agent():
 
 
 tweets = [
+    "create an image of @dapanji_eth wearing a grey fleece vest with a @BluechipDotSol logo",
+    "@iamkadense and @solporttom work out hard in the gym.",
     "joe petting bonk",
     "hosico flying",
     "make my profile picture cry.",
     "generate an image of @iamkadense crying tears like crybaby",
     "generate an image of @iamkadense wearing a woolen hat like @dogwifcoin",
-    "generate an image of @EricTrump wearing a woolen hat like @dogwifcoin",
+    "@EricTrump wearing a woolen hat like @dogwifcoin",
     "generate an image of bitcoin price's skyrocketing",
     "generate an image of @dapanji_eth with hosico.",
     "generate an image of @sydney_sweeney with hosico.",
