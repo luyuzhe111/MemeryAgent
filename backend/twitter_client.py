@@ -130,7 +130,7 @@ class TwitterClient:
         image_path: str,
         custom_text: str | None = None,
     ) -> None:
-        """Quote reply to a mention with an image using v2 API."""
+        """Reply to a mention with an image using v2 API."""
         try:
             # Upload the image using v1.1 API (only way to upload media)
             media = self.api.media_upload(image_path)
@@ -138,10 +138,10 @@ class TwitterClient:
             # Create reply text (empty if no custom text specified)
             reply_text = custom_text if custom_text else ""
 
-            # Post the quote reply using v2 API
+            # Post the reply using v2 API
             self.client.create_tweet(
                 text=reply_text,
-                quote_tweet_id=mention_id,
+                in_reply_to_tweet_id=mention_id,
                 media_ids=[media.media_id],
             )
 

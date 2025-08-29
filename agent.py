@@ -18,7 +18,7 @@ def create_image_generation_agent():
     classic_memes = {
         "hosico": "@Hosico_on_sol",
         "200m": "@the200m_bonk",
-        "cryBaby": "@Crybaby_on_sol",
+        "crybaby": "@Crybaby_on_sol",
         "bonk": "@bonk_inu",
     }
 
