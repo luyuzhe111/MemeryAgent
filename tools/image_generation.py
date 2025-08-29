@@ -2,8 +2,8 @@ import base64
 import logging
 import os
 
+import httpx
 import matplotlib.font_manager as fm
-import requests
 from agents import function_tool
 from PIL import Image, ImageDraw, ImageFont
 
@@ -115,7 +115,7 @@ def add_watermark(image_path: str) -> bool:
         return False
 
 
-def _create_composite_image_impl(
+async def _create_composite_image_impl(
     prompt: str,
     image_paths: list[str],
     output_file: str = "output.png",
@@ -140,6 +140,8 @@ def _create_composite_image_impl(
         prompt + " Do not include tweet text in the image unless explicitly requested."
     )
 
+    # TODO: Refine the prompt with a model call.
+
     # Log the function call details
     tool_logger.info(f"Creating composite image with prompt: '{prompt}'")
     tool_logger.info(f"Input images: {image_paths}")
@@ -158,20 +160,26 @@ def _create_composite_image_impl(
 
     try:
         tool_logger.info("Sending request to OpenAI API...")
-        response = requests.post(
-            "https://api.openai.com/v1/images/edits",
-            headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
-            # TODO: lower the moderation level for the image edit API when available.
-            data={
-                "model": "gpt-image-1",
-                "prompt": prompt,
-                "quality": "high",
-                "input_fidelity": "high",
-                "moderation": "low",
-                "size": "1536x1024",
-            },
-            files=files,
-        )
+        async with httpx.AsyncClient(timeout=180) as client:
+            try:
+                response = await client.post(
+                    "https://api.openai.com/v1/images/edits",
+                    headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
+                    # TODO: lower the moderation level for the image edit API when available.
+                    data={
+                        "model": "gpt-image-1",
+                        "prompt": prompt,
+                        "quality": "high",
+                        "input_fidelity": "high",
+                        "moderation": "low",
+                        "size": "1536x1024",
+                    },
+                    files=files,
+                )
+            except Exception:
+                import traceback
+
+                traceback.print_exc()
 
         if response.status_code == 200:
             tool_logger.info("API request successful")
@@ -217,7 +225,7 @@ def _create_composite_image_impl(
 
 
 @function_tool
-def create_composite_image(
+async def create_composite_image(
     image_paths: list[str],
     prompt: str,
     output_filename: str = "output.png",
@@ -234,5 +242,5 @@ def create_composite_image(
         Full path to the generated image if successful, empty string if failed
     """
     output_path = get_output_path(output_filename)
-    success = _create_composite_image_impl(prompt, image_paths, output_path)
+    success = await _create_composite_image_impl(prompt, image_paths, output_path)
     return output_path if success else ""

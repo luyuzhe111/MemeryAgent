@@ -15,7 +15,6 @@ class ImageResult(BaseModel):
 
 def create_image_generation_agent():
     """Create and return a configured image generation agent."""
-    # local_memes = build_character_instructions()
     classic_memes = {
         "hosico": "@Hosico_on_sol",
         "200m": "@the200m_bonk",
