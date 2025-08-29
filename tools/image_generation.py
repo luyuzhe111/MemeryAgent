@@ -218,16 +218,16 @@ def _create_composite_image_impl(
 
 @function_tool
 def create_composite_image(
-    prompt: str,
     image_paths: list[str],
+    prompt: str,
     output_filename: str = "output.png",
 ) -> str:
     """
     Create a composite image using OpenAI's image editing API.
 
     Args:
+        image_paths: List of paths to image files necessary for generating images.
         prompt: A detailed description of how to edit images listed in the image_paths
-        image_paths: List of paths to image files
         output_filename: Output filename for the generated image
 
     Returns:
