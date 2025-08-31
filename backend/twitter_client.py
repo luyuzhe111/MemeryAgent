@@ -96,7 +96,13 @@ class TwitterClient:
                 id=me_id,
                 since_id=since_id,
                 max_results=max(5, min(limit, 100)),  # v2 API requires 5-100
-                tweet_fields=["author_id", "created_at", "text", "in_reply_to_user_id"],
+                tweet_fields=[
+                    "author_id",
+                    "created_at",
+                    "text",
+                    "in_reply_to_user_id",
+                    "referenced_tweets",
+                ],
             )
 
             if mentions.data:
@@ -110,9 +116,14 @@ class TwitterClient:
                     # defensive measure to filter out self-tagging
                     if mention.author_id != me_id
                     and (
+                        # only allow standalone tweet
                         not hasattr(mention, "in_reply_to_user_id")
                         or mention.in_reply_to_user_id is None
-                        or mention.in_reply_to_user_id == me_id
+                        # including standalone tweet starting with the tag
+                        or (
+                            mention.referenced_tweets is None
+                            and mention.in_reply_to_user_id == me_id
+                        )
                     )
                 ]
                 return main_tweet_mentions[:limit]

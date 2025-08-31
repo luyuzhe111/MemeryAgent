@@ -68,6 +68,7 @@ def create_image_generation_agent():
 
 
 tweets = [
+    "draw a heroic scene of @solporttom and @iamkadense fighting in the trenches. On their back is a bunker with the @bonk_fun logo. A bold eagle is flying over their head, as if they are about to launching an attack.",
     "@theuselesscoin eating @ramen_intern",
     "@iamkadense and @solporttom brainstorming in a conference room, while bonk and hosico playing with each other on the table.",
     "@memery_labs create an image of 200m on a mug",
