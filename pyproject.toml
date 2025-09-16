@@ -27,6 +27,7 @@ dependencies = [
     "pymongo>=4.0.0",
     "Pillow>=10.0.0",
     "matplotlib>=3.7.0",
+    "google-genai>=1.36.0",
 ]
 
 [project.optional-dependencies]
@@ -106,3 +107,9 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 explicit_package_bases = true
 disable_error_code = ["no-untyped-def"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.1.0",
+]

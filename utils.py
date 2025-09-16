@@ -13,7 +13,7 @@ def build_prompt_from_tweet(tweet: str, author_username: str, me_username: str) 
     )
 
     # additional instructions.
-    prompt += "Generate an image based on the tweet."
+    prompt += "Generate an image or video based on the tweet."
 
     return prompt
 
@@ -82,6 +82,32 @@ def get_output_path(filename: str) -> str:
         Full path to the output file
     """
     output_dir = get_output_directory()
+    if not output_dir.startswith("/app"):
+        os.makedirs(output_dir, exist_ok=True)
+    return os.path.join(output_dir, filename)
+
+
+def get_video_output_directory() -> str:
+    """
+    Get the appropriate output directory for videos based on environment.
+
+    Returns:
+        Output directory path for videos
+    """
+    return os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "output_videos")
+
+
+def get_video_output_path(filename: str) -> str:
+    """
+    Get the full output path for a video file.
+
+    Args:
+        filename: Name of the output file
+
+    Returns:
+        Full path to the output file
+    """
+    output_dir = get_video_output_directory()
     if not output_dir.startswith("/app"):
         os.makedirs(output_dir, exist_ok=True)
     return os.path.join(output_dir, filename)

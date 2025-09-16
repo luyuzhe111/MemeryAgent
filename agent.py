@@ -4,13 +4,18 @@ from agents import Agent, ModelSettings, Runner, trace
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-from tools import create_composite_image, download_x_profile_picture
+from tools import (
+    create_composite_image,
+    download_x_profile_picture,
+    generate_video_from_image,
+)
 from utils import build_prompt_from_tweet
 
 
-class ImageResult(BaseModel):
+class MediaResult(BaseModel):
     image_path: str
-    description: str
+    image_description: str
+    video_path: str
 
 
 def create_image_generation_agent():
@@ -30,7 +35,7 @@ def create_image_generation_agent():
 
     instructions = (
         # task instruction
-        "You are a helpful image generator agent. "
+        "You are a helpful image/video generator agent. "
         + "Your task is to generate cool, creative visuals based on tweet contents.\n\n"
         # background knowledge
         + "The following is some info on some classic meme characters you should be aware of:\n"
@@ -44,30 +49,37 @@ def create_image_generation_agent():
         + "tweeter handle too (e.g., generate an image of me playing soccer). when a classic "
         + "meme listed above is mentioned in the tweet, use this tool on the provided twitter handle.\n\n"
         # tool instructions: image generation
-        + "You are given the following tool to generate images based on relevant images:\n"
-        + "- create_composite_image: it takes in three inputs, image_paths, prompt, and the output file name. "
+        + "You are given the 'create_composite_image' tool to generate images based on relevant images:\n"
+        + "- it takes in three inputs, image_paths, prompt, and the output file name. "
         + "image_paths and prompt are particularly important so you should think carefully before specifying them. "
         + "image_paths contains paths of images that you think are needed for generating the new image, "
         + "and prompt is a detailed description of how the images in image_paths should be orchestrated. "
         + "since the profile picture can be anything, from persons, animals, to objects, "
         + "you should avoid describing them as persons. instead, refer to images by either file names or their indices "
-        + "(first / second image) as in image_paths.\n"
+        + "(first / second image) as in image_paths.\n\n"
+        # tool instruction: video generation
+        + "You are given the 'generate_video_from_image' tool to generate a video from an image, which is typically created "
+        + "by the 'create_composite_image' tool.\n"
+        + "- it should only be used if the user explicitly request a video, clip, etc. in the tweet.\n"
     )
 
     return Agent(
-        name="Image generator",
+        name="Image/video generator",
         model="gpt-4.1",
         model_settings=ModelSettings(temperature=0.6),
         instructions=instructions,
         tools=[
             download_x_profile_picture,
             create_composite_image,
+            generate_video_from_image,
         ],
-        output_type=ImageResult,
+        output_type=MediaResult,
     )
 
 
 tweets = [
+    "create a video of @Hosico_on_sol and @bonk_inu riding a scooter in a busy city street at night.",
+    "@OfficialLoganK hugging @NanoBanana",
     "draw a heroic scene of @solporttom and @iamkadense fighting in the trenches. On their back is a bunker with the @bonk_fun logo. A bold eagle is flying over their head, as if they are about to launching an attack.",
     "@theuselesscoin eating @ramen_intern",
     "@iamkadense and @solporttom brainstorming in a conference room, while bonk and hosico playing with each other on the table.",
@@ -102,7 +114,7 @@ async def main():
     print(agent.instructions)
 
     with trace("Image generation example"):
-        print("Generating image, this may take a while...")
+        print("Generating image / video, this may take a while...")
         prompt = prompts[0]
         print(f"prompt:\n{prompt}")
         result = await Runner.run(agent, prompt)
