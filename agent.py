@@ -78,6 +78,7 @@ def create_image_generation_agent():
 
 
 tweets = [
+    "create a video of @solporttom drinking coffee",
     "create a video of @Hosico_on_sol and @bonk_inu riding a scooter in a busy city street at night.",
     "@OfficialLoganK hugging @NanoBanana",
     "draw a heroic scene of @solporttom and @iamkadense fighting in the trenches. On their back is a bunker with the @bonk_fun logo. A bold eagle is flying over their head, as if they are about to launching an attack.",
@@ -114,7 +115,7 @@ async def main():
     print(agent.instructions)
 
     with trace("Image generation example"):
-        print("Generating image / video, this may take a while...")
+        print("Generating image or video, this may take a while...")
         prompt = prompts[0]
         print(f"prompt:\n{prompt}")
         result = await Runner.run(agent, prompt)

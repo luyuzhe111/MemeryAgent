@@ -134,17 +134,17 @@ class TwitterClient:
             logger.error(f"Error fetching mentions: {e}")
             return []
 
-    def reply_with_image(
+    def reply_with_media(
         self,
         mention_id: int,
         username: str,
-        image_path: str,
+        media_path: str,
         custom_text: str | None = None,
     ) -> None:
-        """Reply to a mention with an image using v2 API."""
+        """Reply to a mention with an media using v2 API."""
         try:
-            # Upload the image using v1.1 API (only way to upload media)
-            media = self.api.media_upload(image_path)
+            # Upload the media using v1.1 API (only way to upload media)
+            media = self.api.media_upload(media_path)
 
             # Create reply text (empty if no custom text specified)
             reply_text = custom_text if custom_text else ""
@@ -156,16 +156,16 @@ class TwitterClient:
                 media_ids=[media.media_id],
             )
 
-            logger.info(f"Posted quote reply with image to @{username}")
+            logger.info(f"Posted reply with media to @{username}")
 
         except Exception as e:
-            logger.error(f"Error posting quote reply with image: {e}")
+            logger.error(f"Error posting reply with media: {e}")
             raise
 
-    def upload_media(self, image_path: str):
+    def upload_media(self, media_path: str):
         """Upload media to Twitter and return media object."""
         try:
-            return self.api.media_upload(image_path)
+            return self.api.media_upload(media_path)
         except Exception as e:
             logger.error(f"Error uploading media: {e}")
             raise

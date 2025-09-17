@@ -119,22 +119,22 @@ class TwitterBot(TwitterClient):
             logger.error(f"Error processing mention {mention.id}: {e}")
 
     async def _generate_and_reply_async(self, mention):
-        """Background async function to generate image and reply."""
+        """Background async function to generate media and reply."""
         try:
             # Get user info again for the async context
             user = self.client.get_user(id=mention.author_id)
             username = user.data.username
 
-            # Generate image using async agent
-            image_path = await self.generate_response_image_async(mention)
+            # Generate media using async agent
+            media_path = await self.generate_response_media_async(mention)
 
-            if image_path and os.path.exists(image_path):
-                # Reply with image
-                self.reply_with_image(mention.id, username, image_path)
+            if media_path and os.path.exists(media_path):
+                # Reply with medi
+                self.reply_with_media(mention.id, username, media_path)
                 logger.info(f"Successfully replied to @{username}")
 
-                # Update database with final image path
-                self._update_processed_mention(mention.id, image_path)
+                # Update database with final media path
+                self._update_processed_mention(mention.id, media_path)
 
                 # Update bot statistics
                 self.bot_state.increment_processed_count()
@@ -165,11 +165,11 @@ class TwitterBot(TwitterClient):
         except Exception as e:
             logger.error(f"Error updating processed mention {mention_id}: {e}")
 
-    async def generate_response_image_async(self, mention) -> str | None:
-        """Generate an AI image based on the mention content using OpenAI agent."""
+    async def generate_response_media_async(self, mention) -> str | None:
+        """Generate an AI image/video based on the mention content using OpenAI agent."""
         try:
             if not self.image_agent:
-                logger.error("Image agent not initialized")
+                logger.error("Agent not initialized")
                 return None
 
             # Extract username from mention
@@ -185,13 +185,16 @@ class TwitterBot(TwitterClient):
             logger.info(f"Generating image with prompt: {prompt}")
 
             # Generate image using agent
-            with trace("Twitter mention image generation"):
+            with trace("Twitter mention image and video generation"):
                 result = await Runner.run(self.image_agent, prompt)
 
             # Extract image path from structured result
             if hasattr(result, "final_output") and result.final_output:
-                logger.info(f"Image generation completed: {result.final_output}")
-                if hasattr(result.final_output, "image_path"):
+                if result.final_output.video_path:
+                    logger.info(f"Video generation completed: {result.final_output}")
+                    return result.final_output.video_path
+                elif result.final_output.image_path:
+                    logger.info(f"Image generation completed: {result.final_output}")
                     return result.final_output.image_path
                 else:
                     logger.error("No image_path in structured output")
